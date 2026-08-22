@@ -2,10 +2,9 @@ package auth
 
 import (
 	"brief-url/configs"
+	"brief-url/pkg/request"
 	"brief-url/pkg/response"
-	"encoding/json"
 	"fmt"
-	"github.com/go-playground/validator/v10"
 	"net/http"
 )
 
@@ -27,31 +26,30 @@ func NewAuthHandler(mux *http.ServeMux, deps AuthHandlerDeps) {
 
 func (h *AuthHandler) register() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("register")
+		body, err := request.HandleBody[RegisterRequest](w, r)
+		if err != nil {
+			return
+		}
+
+		fmt.Println(body)
+
+		res := LoginResponse{
+			Token: "abc",
+		}
+
+		response.Json(w, res, http.StatusOK)
 	}
 }
 
 func (h *AuthHandler) login() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req LoginRequest
 
-		err := json.NewDecoder(r.Body).Decode(&req)
+		body, err := request.HandleBody[LoginRequest](w, r)
 		if err != nil {
-			response.Json(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		if req.Email == "" || req.Password == "" {
-			response.Json(w, "email or password is empty", http.StatusBadRequest)
-			return
-		}
-
-		validate := validator.New()
-		err = validate.Struct(req)
-		if err != nil {
-			response.Json(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+		fmt.Println(body)
 
 		res := LoginResponse{
 			Token: "abc",

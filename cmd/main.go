@@ -2,16 +2,17 @@ package main
 
 import (
 	"brief-url/Internal/auth"
+	"brief-url/configs"
 	"fmt"
 	"log"
 	"net/http"
 )
 
 func main() {
-	//config := configs.NewConfig()
+	config := configs.NewConfig()
 
 	mux := http.NewServeMux()
-	auth.NewAuthHandler(mux)
+	auth.NewAuthHandler(mux, auth.AuthHandlerDeps{Config: config})
 
 	server := http.Server{
 		Addr:    ":8080",
